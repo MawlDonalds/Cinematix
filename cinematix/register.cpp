@@ -5,37 +5,41 @@
 #include <stdlib.h>
 #include "bioskop.h"
 
-// Deklarasi fungsi
-int registerUser();
-
+// Fungsi Register
 int registerUser(){
-    char username[20];
-    char password[20];
-    char role[10] = "USER"; // Default role adalah USER
+    FILE *file;
+    char newUser[50], newPass[50];
+    char confirmPass[50];
 
     system("cls");
-    printf("=========================================================================\n");
-    printf("\t\t\t Register User FunCinema \n");
-    printf("=========================================================================\n\n");
-    printf("Username: ");
-    scanf("%19s", username);
-    printf("Password: ");
-    scanf("%19s", password);
+    printf("======== Register FunCinema ========\n\n");
+    printf("Username baru: ");
+    scanf("%s", newUser);
+    printf("Password baru: ");
+    scanf("%s", newPass);
+    printf("Konfirmasi Password: ");
+    scanf("%s", confirmPass);
     fflush(stdin);
 
-    // Simpan data ke file password.txt
-    FILE *file = fopen("password.txt", "a");
+    if(strcmp(newPass, confirmPass) != 0){
+        printf("Password tidak cocok!\n");
+        getch();
+        return 0;
+    }
+
+    // Menambahkan user ke file password.txt dengan role USER
+    file = fopen("password.txt", "a");
     if(file == NULL){
         printf("Gagal membuka file password.txt\n");
         getch();
-        return 1;
+        return 0;
     }
 
-    fprintf(file, "%s %s %s\n", username, password, role);
+    fprintf(file, "%s %s USER\n", newUser, newPass);
     fclose(file);
 
-    printf("Registrasi berhasil! Silakan login dengan akun Anda.\n");
+    printf("Registrasi berhasil! Anda dapat login sekarang.\n");
     getch();
-    return 0;
+    return 1;
 }
 

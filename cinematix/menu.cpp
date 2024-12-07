@@ -5,6 +5,25 @@
 #include <cstdlib>
 #include "bioskop.h"
 
+// Implementasi fungsi getLogin
+int getLogin(){
+    int role = login();
+    if(role == 1){
+        // Admin
+        adminMenu();
+    }
+    else if(role == 2){
+        // User
+        userMenu();
+    }
+    else{
+        // Login gagal atau peran tidak dikenal
+        printf("Login gagal atau peran tidak dikenal.\n");
+        getch();
+    }
+    return 0;
+}
+
 // Implementasi fungsi menu admin jika diperlukan
 // Berikut adalah contoh sederhana
 int menu() {
@@ -46,14 +65,18 @@ int menu() {
                 Logout();
                 system("cls");
                 system("color 7");	
-                getLogin();
+                getLogin(); // Memanggil getLogin() untuk kembali ke login
                 break;
             }
-            default : { 
+            case 5 : { 
                 printf("\n\n Terima Kasih... :) ");
+                exit(1);
+            }
+            default : { 
+                printf("\n\n Pilihan tidak valid! Terima Kasih... :) ");
                 exit(1);
             }
         }
     }
-}
+} 
 

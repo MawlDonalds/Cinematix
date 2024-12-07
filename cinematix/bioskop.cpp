@@ -4,7 +4,17 @@
 #include <cstdlib>
 #include <conio.h>
 #include <time.h>
+#include <ctype.h>    // Untuk fungsi toupper()
 #include "bioskop.h"
+
+// Implementasi fungsi convertSeat
+int convertSeat(char row, int number){
+    // Validasi input
+    if(row < 'A' || row > 'J' || number < 1 || number > 5){
+        return -1; // Invalid seat
+    }
+    return (row - 'A') * 5 + number;
+}
 
 // Fungsi untuk membaca daftar film dari file
 int readFilms(Show films[], int maxFilms){
@@ -83,7 +93,7 @@ int readSeats(char seats[]){
 int updateSeats(char seats[]){
     FILE *file = fopen("seats.txt", "w");
     if(file == NULL){
-        printf("Gagal membuka file seats.txt\n");
+        printf("Gagal membuka file seats.txt untuk menulis\n");
         getch();
         return 0;
     }
@@ -94,6 +104,7 @@ int updateSeats(char seats[]){
     return 1;
 }
 
+// Fungsi utama untuk proses pembelian tiket
 int getBioskop(){
     FILE *Tickets;
     Nonton dt;
@@ -157,7 +168,7 @@ int getBioskop(){
         printf(" |        | \t\t|   1   |   2   |   3   |   4   |   5   |   6   |\n");
         printf(" |----------------------|------------------------------------------------\n");
         for(int i = 0; i < filmCount; i++){
-            printf(" |   %d    | %s\t\t| ", films[i].filmID, films[i].judul);
+            printf(" |   %d    | %s\t| ", films[i].filmID, films[i].judul);
             for(int j =1; j<=6; j++){
                 if(films[i].filmID ==1 || films[i].filmID ==4){
                     printf("%.2f | ", films[i].jamx[j]);
@@ -242,21 +253,30 @@ int getBioskop(){
             fflush(stdin);
             printf("Pilih seat(A-J) untuk tiket ke-%d: ", h+1);
             scanf(" %c", &hurufkursi[h]);
-            printf("Pilih Nomor Kursi(1-50) untuk tiket ke-%d: ", h+1);
+            hurufkursi[h] = toupper(hurufkursi[h]); // Pastikan huruf kapital
+            printf("Pilih Nomor Kursi(1-5) untuk tiket ke-%d: ", h+1);
             status = scanf("%d", &angkakursi[h]);
             while(status != 1){
                 while((temp = getchar()) != EOF && temp != '\n');
                 printf("Invalid input.. Masukkan angka: ");
                 status = scanf("%d", &angkakursi[h]);
             }
-            if(angkakursi[h] < 1 || angkakursi[h] > 50){
+            if(angkakursi[h] < 1 || angkakursi[h] > 5){
                 printf("Pilihan tidak valid, silahkan Ulangi ! \n\n");
                 getch();
                 goto kursi;
             }
 
+            // Konversi huruf dan angka ke nomor kursi
+            int seatNumber = convertSeat(hurufkursi[h], angkakursi[h]);
+            if(seatNumber == -1){
+                printf("Pilihan kursi tidak valid!\n");
+                getch();
+                goto kursi;
+            }
+
             // Cek apakah kursi tersedia
-            if(seats[angkakursi[h]] == 'T' || seats[angkakursi[h]] == 't'){
+            if(seats[seatNumber] == 'T' || seats[seatNumber] == 't'){
                 printf("Kursi %c%d sudah terisi. Silakan pilih kursi lain.\n", hurufkursi[h], angkakursi[h]);
                 getch();
                 goto kursi;
@@ -291,7 +311,8 @@ int getBioskop(){
             printf("Uang tidak cukup, ulangi pembayaran atau batalkan transaksi? (U/B)\n\n");
             char choice;
             scanf(" %c", &choice);
-            if(choice == 'U' || choice == 'u'){
+            choice = toupper(choice);
+            if(choice == 'U'){
                 goto pembayaran;		
             }
             else{
@@ -310,8 +331,9 @@ int getBioskop(){
         printf("Cetak tiket (Y/N) ? ");
         char cetak;
         scanf(" %c", &cetak);
+        cetak = toupper(cetak);
         system("cls");
-        if(cetak == 'y' || cetak == 'Y'){
+        if(cetak == 'Y'){
             Tickets = fopen("Report.txt", "a+");
             if(Tickets == NULL){
                 printf("Gagal membuka file Report.txt\n");
@@ -341,7 +363,10 @@ int getBioskop(){
 
             // Mengubah status kursi yang dibeli menjadi 'T'
             for(int i = 0; i < jumlahTiket; i++){
-                updatedSeats[angkakursi[i]] = 'T';
+                int seatNumber = convertSeat(hurufkursi[i], angkakursi[i]);
+                if(seatNumber != -1){
+                    updatedSeats[seatNumber] = 'T';
+                }
             }
 
             // Menulis kembali status kursi ke file
@@ -384,10 +409,11 @@ int getBioskop(){
             printf("Ingin membeli tiket lagi (Y/N) ?");
             char jawab;
             scanf(" %c", &jawab);
-            if(jawab == 'y' || jawab == 'Y'){
+            jawab = toupper(jawab);
+            if(jawab == 'Y'){
                 goto kembali;
             }
-            else if(jawab == 'n' || jawab == 'N'){
+            else if(jawab == 'N'){
                 goto selesai;
             }
             else{
@@ -407,7 +433,8 @@ int getBioskop(){
         printf("Kembali Ke Menu Utama ? (Y/N)");
         char menuChoice;
         scanf(" %c", &menuChoice);
-        if(menuChoice == 'y' || menuChoice == 'Y'){
+        menuChoice = toupper(menuChoice);
+        if(menuChoice == 'Y'){
             system("cls");
             return 0; // Kembali ke menu user
         }

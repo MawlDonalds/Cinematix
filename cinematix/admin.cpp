@@ -1,8 +1,8 @@
-// admin.cpp
 #include <stdio.h>
-#include <string.h>
 #include <conio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>    // Untuk fungsi toupper()
 #include "bioskop.h"
 
 // Deklarasi fungsi
@@ -14,7 +14,7 @@ int editHarga();
 int lihatRiwayat();
 int editTempatDuduk();
 
-// Fungsi Logout
+//// Fungsi Logout
 //int Logout(){
 //    system("cls");
 //    printf("Anda telah berhasil logout.\n");
@@ -23,6 +23,24 @@ int editTempatDuduk();
 //    return 0;
 //}
 
+// Fungsi untuk menampilkan layout kursi
+void displaySeats(char seats[]){
+    printf("======== Layout Kursi ========\n");
+    printf("Status: B = Belum Terisi, T = Terisi\n\n");
+    for(char row = 'A'; row <= 'J'; row++){
+        printf("Baris %c: ", row);
+        for(int num = 1; num <=5; num++){
+            int seatNumber = convertSeat(row, num);
+            if(seatNumber != -1){
+                printf(" %c%d(%c) ", row, num, seats[seatNumber]);
+            }
+        }
+        printf("\n");
+    }
+    printf("================================\n\n");
+}
+
+// Implementasi fungsi adminMenu()
 int adminMenu(){
     int pilihan;
     while (1) {
@@ -63,7 +81,7 @@ int adminMenu(){
                 break;
             case 7:
                 Logout();
-                return 0; // Kembali ke main menu tanpa menutup program
+                return 0; // Kembali ke menu utama tanpa menutup program
             default:
                 printf("Pilihan tidak valid!\n");
                 getch();
@@ -72,6 +90,122 @@ int adminMenu(){
     return 0;
 }
 
+// Implementasi fungsi editTempatDuduk()
+int editTempatDuduk(){
+    FILE *file;
+    char seats[51]; // 1-50
+    memset(seats, 'B', sizeof(seats)); // Default Belum Terisi
+
+    // Membaca status kursi dari file
+    file = fopen("seats.txt", "r");
+    if(file == NULL){
+        printf("Gagal membuka file seats.txt\n");
+        getch();
+        return 0;
+    }
+    int seatNum;
+    char status;
+    while(fscanf(file, "%d %c", &seatNum, &status) != EOF){
+        if(seatNum >=1 && seatNum <=50){
+            seats[seatNum] = status;
+        }
+    }
+    fclose(file);
+
+    while(1){
+        system("cls");
+        printf("======== Edit Tempat Duduk ========\n\n");
+        displaySeats(seats);
+
+        printf("Opsi:\n");
+        printf("1. Ubah Status Kursi\n");
+        printf("2. Reset Semua Kursi\n");
+        printf("3. Kembali ke Menu Admin\n");
+        printf("Pilih opsi: ");
+        int opsi;
+        scanf("%d", &opsi);
+        fflush(stdin);
+
+        if(opsi == 1){
+            // Mengubah status kursi
+            printf("Masukkan baris kursi (A-J): ");
+            char row;
+            scanf(" %c", &row);
+            row = toupper(row);
+            printf("Masukkan nomor kursi (1-5): ");
+            int num;
+            scanf("%d", &num);
+            fflush(stdin);
+
+            int seatNumber = convertSeat(row, num);
+            if(seatNumber == -1){
+                printf("Input kursi tidak valid!\n");
+                getch();
+                continue;
+            }
+
+            printf("Status saat ini: %c\n", seats[seatNumber]);
+            printf("Masukkan status baru (T/B): ");
+            char newStatus;
+            scanf(" %c", &newStatus);
+            newStatus = toupper(newStatus);
+            fflush(stdin);
+
+            if(newStatus != 'T' && newStatus != 'B'){
+                printf("Status tidak valid! Harus T atau B.\n");
+                getch();
+                continue;
+            }
+
+            seats[seatNumber] = newStatus;
+            printf("Kursi %c%d berhasil diubah ke status %c.\n", row, num, newStatus);
+            getch();
+
+        }
+        else if(opsi == 2){
+            // Reset semua kursi
+            printf("Apakah Anda yakin ingin mereset semua kursi? (Y/N): ");
+            char confirm;
+            scanf(" %c", &confirm);
+            confirm = toupper(confirm);
+            fflush(stdin);
+
+            if(confirm == 'Y'){
+                for(int i=1; i<=50; i++) seats[i] = 'B';
+                printf("Semua kursi telah direset menjadi Belum Terisi.\n");
+                getch();
+            }
+            else{
+                printf("Reset dibatalkan.\n");
+                getch();
+            }
+        }
+        else if(opsi == 3){
+            // Menyimpan perubahan dan kembali ke menu admin
+            // Menulis kembali ke file
+            file = fopen("seats.txt", "w");
+            if(file == NULL){
+                printf("Gagal membuka file seats.txt untuk menulis\n");
+                getch();
+                return 0;
+            }
+            for(int i=1; i<=50; i++){
+                fprintf(file, "%d %c\n", i, seats[i]);
+            }
+            fclose(file);
+            printf("Perubahan telah disimpan.\n");
+            getch();
+            return 0;
+        }
+        else{
+            printf("Pilihan tidak valid!\n");
+            getch();
+        }
+    }
+    return 0;
+}
+
+// Implementasi fungsi editFilm()
 int editFilm(){
     FILE *file;
     Show sh;
@@ -142,6 +276,7 @@ int editFilm(){
     return 0;
 }
 
+// Implementasi fungsi editJamTayang()
 int editJamTayang(){
     FILE *fileFilm, *fileShow;
     Show sh;
@@ -250,6 +385,7 @@ int editJamTayang(){
     return 0;
 }
 
+// Implementasi fungsi editStudio()
 int editStudio(){
     FILE *file;
     Studio studio;
@@ -320,6 +456,7 @@ int editStudio(){
     return 0;
 }
 
+// Implementasi fungsi editHarga()
 int editHarga(){
     FILE *file;
     float weekdayPrice, weekendPrice;
@@ -380,6 +517,7 @@ int editHarga(){
     return 0;
 }
 
+// Implementasi fungsi lihatRiwayat()
 int lihatRiwayat(){
     FILE *Tickets = fopen("Report.txt", "r");
     char buffer[256];
@@ -395,14 +533,6 @@ int lihatRiwayat(){
         fclose(Tickets);
     }
     printf("\nPress any key to kembali...");
-    getch();
-    return 0;
-}
-
-int editTempatDuduk(){
-    // Implementasikan sesuai kebutuhan
-    // Misalnya, mengubah layout kursi, status kursi (terisi atau tidak), dll.
-    printf("Fitur ini sedang dalam pengembangan.\n");
     getch();
     return 0;
 }
