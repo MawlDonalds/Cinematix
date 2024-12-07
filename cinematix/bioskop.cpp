@@ -6,28 +6,146 @@
 #include <time.h>
 #include "bioskop.h"
 
-// Deklarasi fungsi
-int getBioskop();
-int Delete();
-int Tampil_Lihat();
-int getLoading();
-int menu(); // Pastikan fungsi menu didefinisikan atau dipanggil sesuai struktur baru
+// Fungsi untuk membaca daftar film dari file
+int readFilms(Show films[], int maxFilms){
+    FILE *file = fopen("films.txt", "r");
+    if(file == NULL){
+        printf("Gagal membuka file films.txt\n");
+        getch();
+        return 0;
+    }
+    int count = 0;
+    while(fscanf(file, "%d %s", &films[count].filmID, films[count].judul) != EOF && count < maxFilms){
+        count++;
+    }
+    fclose(file);
+    return count;
+}
+
+// Fungsi untuk membaca jam tayang dari file
+int readShowtimes(int filmID, float jamx[], float jamy[], int maxShowtimes){
+    FILE *file = fopen("showtimes.txt", "r");
+    if(file == NULL){
+        printf("Gagal membuka file showtimes.txt\n");
+        getch();
+        return 0;
+    }
+    int id, jamNumber;
+    float jam;
+    while(fscanf(file, "%d %d %f", &id, &jamNumber, &jam) != EOF){
+        if(id == filmID && jamNumber >=1 && jamNumber <=6){
+            // Asumsikan filmID 1 dan 4 menggunakan jamx (weekday), 2 dan 3 menggunakan jamy (weekend)
+            if(id == 1 || id == 4){
+                jamx[jamNumber] = jam;
+            }
+            else{
+                jamy[jamNumber] = jam;
+            }
+        }
+    }
+    fclose(file);
+    return 1;
+}
+
+// Fungsi untuk membaca harga tiket
+int readPrices(float &weekdayPrice, float &weekendPrice){
+    FILE *file = fopen("prices.txt", "r");
+    if(file == NULL){
+        printf("Gagal membuka file prices.txt\n");
+        getch();
+        return 0;
+    }
+    fscanf(file, "%f %f", &weekdayPrice, &weekendPrice);
+    fclose(file);
+    return 1;
+}
+
+// Fungsi untuk membaca status kursi
+int readSeats(char seats[]){
+    FILE *file = fopen("seats.txt", "r");
+    if(file == NULL){
+        printf("Gagal membuka file seats.txt\n");
+        getch();
+        return 0;
+    }
+    int seatNum;
+    char status;
+    while(fscanf(file, "%d %c", &seatNum, &status) != EOF){
+        if(seatNum >=1 && seatNum <=50){
+            seats[seatNum] = status;
+        }
+    }
+    fclose(file);
+    return 1;
+}
+
+// Fungsi untuk memperbarui status kursi
+int updateSeats(char seats[]){
+    FILE *file = fopen("seats.txt", "w");
+    if(file == NULL){
+        printf("Gagal membuka file seats.txt\n");
+        getch();
+        return 0;
+    }
+    for(int i=1; i<=50; i++){
+        fprintf(file, "%d %c\n", i, seats[i]);
+    }
+    fclose(file);
+    return 1;
+}
 
 int getBioskop(){
     FILE *Tickets;
     Nonton dt;
-    Show sh;
-    
+    Show films[5]; // Asumsikan maksimal 4 film
+    float weekdayPrice, weekendPrice;
+    char seats[51]; // 1-50
+
+    // Membaca data dari file
+    int filmCount = readFilms(films, 5);
+    if(filmCount == 0){
+        return 0;
+    }
+
+    // Membaca jam tayang untuk setiap film
+    for(int i = 0; i < filmCount; i++){
+        memset(films[i].jamx, 0, sizeof(films[i].jamx));
+        memset(films[i].jamy, 0, sizeof(films[i].jamy));
+        readShowtimes(films[i].filmID, films[i].jamx, films[i].jamy, 6);
+    }
+
+    // Membaca harga tiket
+    if(!readPrices(weekdayPrice, weekendPrice)){
+        return 0;
+    }
+    dt.hargatiket_weekday = weekdayPrice;
+    dt.hargatiket_weekend = weekendPrice;
+
+    // Membaca status kursi
+    memset(seats, 'B', sizeof(seats)); // Default Belum Terisi
+    if(!readSeats(seats)){
+        return 0;
+    }
+
+    // Mendapatkan tanggal saat ini
     time_t now;
     time(&now);
-
     struct tm *local = localtime(&now);
+    int day = local->tm_mday;            // hari
+    int month = local->tm_mon + 1;       // bulan
+    int year = local->tm_year + 1900;    // tahun
 
-    sh.day = local->tm_mday;            // get day of month (1 to 31)
-    sh.month = local->tm_mon + 1;      // get month of year (0 to 11)
-    sh.year = local->tm_year + 1900;   // get year since 1900
+    // Menentukan apakah hari ini weekend atau weekday
+    int wday = local->tm_wday; // 0 = Sunday, 6 = Saturday
+    float harga_tiket;
+    if(wday == 0 || wday == 6){
+        harga_tiket = dt.hargatiket_weekend;
+    }
+    else{
+        harga_tiket = dt.hargatiket_weekday;
+    }
 
-    for (;;){
+    while(1){
         kembali:
         system("cls");
         printf("=========================================================================\n");
@@ -35,138 +153,146 @@ int getBioskop(){
         printf("=========================================================================\n\n");
         printf("\t\t\t DAFTAR FILM\n");
         printf("-------------------------------------------------------------------------\n");
-        printf(" |\t  |\t\t|\t\t\tJam\t\t\t|\n");
         printf(" | Studio |    Film\t|------------------------------------------------\n");
-        printf(" |\t  | \t\t|   1   |   2   |   3   |   4   |   5   |   6   |\n");
+        printf(" |        | \t\t|   1   |   2   |   3   |   4   |   5   |   6   |\n");
         printf(" |----------------------|------------------------------------------------\n");
-        printf(" |   1   | Sepiderman\t| 11.30 | 12.55 | 14.20 | 16.10 | 19.10 | 20.45 |\n");
-        printf(" |   2   | BOLANG\t| 11.45 | 13.00 | 15.30 | 17.20 | 19.15 | 21.00 |\n");
-        printf(" |   3   | Frozen 2\t| 11.45 | 13.00 | 15.30 | 17.20 | 19.15 | 21.00 |\n");
-        printf(" |   4   | My War\t| 11.30 | 12.55 | 14.20 | 16.10 | 19.10 | 20.45 |\n");
+        for(int i = 0; i < filmCount; i++){
+            printf(" |   %d    | %s\t\t| ", films[i].filmID, films[i].judul);
+            for(int j =1; j<=6; j++){
+                if(films[i].filmID ==1 || films[i].filmID ==4){
+                    printf("%.2f | ", films[i].jamx[j]);
+                }
+                else{
+                    printf("%.2f | ", films[i].jamy[j]);
+                }
+            }
+            printf("\n");
+        }
         printf(" |----------------------|------------------------------------------------\n\n");
         printf("=========================================================================\n");
-        printf("Harga Tiket : Rp. %.3f\n", dt.hargatiket_weekday);		
+        printf("Harga Tiket : Rp. %.2f\n", harga_tiket);		
         printf("Today is %s", ctime(&now));
-        
+
         // Pilihan film
         filminput:
         fflush(stdin);
-        printf("Pilih Film(1-4) : ");
-        // VALIDASI HANYA ANGKA
-        int status, temp;
-        status = scanf("%d", &sh.film);
+        printf("Pilih Film(1-%d) : ", filmCount);
+        int selectedFilm;
+        int status = scanf("%d", &selectedFilm);
+        int temp;
         while(status != 1){
             while((temp = getchar()) != EOF && temp != '\n');
             printf("Invalid input.. Masukkan angka: ");
-            status = scanf("%d", &sh.film);
+            status = scanf("%d", &selectedFilm);
         }
-        if(sh.film < 1 || sh.film > 4){
-            printf("Invalid..! Hanya tersedia 4 list film \n");
+        if(selectedFilm < 1 || selectedFilm > filmCount){
+            printf("Invalid..! Hanya tersedia %d list film \n", filmCount);
             getch();
             goto filminput;
         }
-        
+
         // Pilihan jam tayang
         jaminput:
         fflush(stdin);
         printf("Pilih Jam ke(1-6) : ");
-        // VALIDASI HANYA ANGKA
-        int status1, temp1;
-        status1 = scanf("%d", &sh.jam);
-        while(status1 != 1){
-            while((temp1 = getchar()) != EOF && temp1 != '\n');
+        int jamNumber;
+        status = scanf("%d", &jamNumber);
+        while(status != 1){
+            while((temp = getchar()) != EOF && temp != '\n');
             printf("Invalid input.. Masukkan angka: ");
-            status1 = scanf("%d", &sh.jam);
+            status = scanf("%d", &jamNumber);
         }
-        if(sh.jam < 1 || sh.jam > 6){
+        if(jamNumber < 1 || jamNumber >6){
             printf("Masukkan pilihan yang valid\n");
             getch();
             goto jaminput;
         }
-        
+
         // Tampilkan film dan jam tayang yang dipilih
-        printf("Film: %s\n", sh.jud[sh.film]);			
-        if(sh.film == 1 || sh.film == 4){
-            printf("Jam: %.2f\n", sh.jamx[sh.jam]);
+        printf("Film: %s\n", films[selectedFilm-1].judul);			
+        if(films[selectedFilm-1].filmID == 1 || films[selectedFilm-1].filmID ==4){
+            printf("Jam: %.2f\n", films[selectedFilm-1].jamx[jamNumber]);
         }
-        else if(sh.film == 2 || sh.film == 3){
-            printf("Jam: %.2f\n", sh.jamy[sh.jam]);
+        else{
+            printf("Jam: %.2f\n", films[selectedFilm-1].jamy[jamNumber]);
         }
-        
+
         // Pilihan jumlah tiket
+        jumlahTiket:
         fflush(stdin);
         printf("Jumlah tiket yang akan dibeli : ");
-        // VALIDASI HANYA ANGKA
-        int status2, temp2;
-        status2 = scanf("%d", &dt.tiket);
-        while(status2 != 1){
-            while((temp2 = getchar()) != EOF && temp2 != '\n');
+        int jumlahTiket;
+        status = scanf("%d", &jumlahTiket);
+        while(status != 1){
+            while((temp = getchar()) != EOF && temp != '\n');
             printf("Invalid input.. Masukkan angka: ");
-            status2 = scanf("%d", &dt.tiket);
+            status = scanf("%d", &jumlahTiket);
         }
-        if(dt.tiket <= 0){
+        if(jumlahTiket <= 0){
             printf("Jumlah tiket harus lebih dari 0!\n");
             getch();
             goto kembali;
         }
-        
+
         // Pilihan tempat duduk
-        kursi:
-        int h;
-        for(h = 0; h < dt.tiket; h++){
+        char hurufkursi[50];
+        int angkakursi[50];
+        for(int h = 0; h < jumlahTiket; h++){
+            kursi:
             fflush(stdin);
-            printf("Pilih seat(A-J) : ");
-            scanf(" %c", &sh.hurufkursi[h][0]);				
-            printf("Pilih Nomor Kursi(1-50) : ");
-            // VALIDASI HANYA ANGKA
-            int status3, temp3;
-            status3 = scanf("%d", &sh.angkakursi[h]);
-            while(status3 != 1){
-                while((temp3 = getchar()) != EOF && temp3 != '\n');
+            printf("Pilih seat(A-J) untuk tiket ke-%d: ", h+1);
+            scanf(" %c", &hurufkursi[h]);
+            printf("Pilih Nomor Kursi(1-50) untuk tiket ke-%d: ", h+1);
+            status = scanf("%d", &angkakursi[h]);
+            while(status != 1){
+                while((temp = getchar()) != EOF && temp != '\n');
                 printf("Invalid input.. Masukkan angka: ");
-                status3 = scanf("%d", &sh.angkakursi[h]);
+                status = scanf("%d", &angkakursi[h]);
             }
-            if(sh.angkakursi[h] < 1 || sh.angkakursi[h] > 50){
+            if(angkakursi[h] < 1 || angkakursi[h] > 50){
                 printf("Pilihan tidak valid, silahkan Ulangi ! \n\n");
                 getch();
                 goto kursi;
             }
+
+            // Cek apakah kursi tersedia
+            if(seats[angkakursi[h]] == 'T' || seats[angkakursi[h]] == 't'){
+                printf("Kursi %c%d sudah terisi. Silakan pilih kursi lain.\n", hurufkursi[h], angkakursi[h]);
+                getch();
+                goto kursi;
+            }
         }
-        
+
         // Tampilan Checkout			
-        inptiket:	
-        int i;
-        fflush(stdin);
-        printf("Jumlah Pesanan : %d\n", dt.tiket);
+        printf("Jumlah Pesanan : %d\n", jumlahTiket);
         printf("-----------------------------------------\n");
         printf("| No |\tFilm\t| Kursi | Harga |\n");
         printf("-----------------------------------------\n");
-        for(i = 0; i < dt.tiket; i++){
-            printf("| %2d | %s\t|  %c%d  | %.3f |\n", i+1, sh.jud[sh.film], sh.hurufkursi[i][0], sh.angkakursi[i], dt.hargatiket_weekday);
+        for(int i = 0; i < jumlahTiket; i++){
+            printf("| %2d | %s\t|  %c%d  | %.2f |\n", i+1, films[selectedFilm-1].judul, hurufkursi[i], angkakursi[i], harga_tiket);
         }
         printf("-----------------------------------------\n");
-        dt.totalharga = dt.hargatiket_weekday * dt.tiket;
-        
+        dt.totalharga = harga_tiket * jumlahTiket;
+
         // Transaksi pembayaran		
-        balik:
+        pembayaran:
         fflush(stdin);
-        printf("Total harga\t\tRp %.3f\n", dt.totalharga);
+        printf("Total harga\t\tRp %.2f\n", dt.totalharga);
         printf("Bayar\t\t\tRp. ");
-        // VALIDASI HANYA ANGKA
-        int status4, temp4;
-        status4 = scanf("%f", &dt.bayar);
-        while(status4 != 1){
-            while((temp4 = getchar()) != EOF && temp4 != '\n');
+        float bayar;
+        status = scanf("%f", &bayar);
+        while(status != 1){
+            while((temp = getchar()) != EOF && temp != '\n');
             printf("Invalid input.. Masukkan biaya: ");
-            status4 = scanf("%f", &dt.bayar);
+            status = scanf("%f", &bayar);
         }
-        
-        if(dt.bayar < dt.totalharga){
+
+        if(bayar < dt.totalharga){
             printf("Uang tidak cukup, ulangi pembayaran atau batalkan transaksi? (U/B)\n\n");
             char choice;
             scanf(" %c", &choice);
             if(choice == 'U' || choice == 'u'){
-                goto balik;		
+                goto pembayaran;		
             }
             else{
                 printf("Transaksi dibatalkan.\n");
@@ -175,39 +301,85 @@ int getBioskop(){
             }											
         }
         else{
-            dt.kembalian2 = dt.bayar - dt.totalharga;
+            dt.kembalian2 = bayar - dt.totalharga;
         }
-        
+
         printf("\t\t\t____\n\n");
-        printf("Kembalian\t\tRp %.3f\n", dt.kembalian2);
-        
+        printf("Kembalian\t\tRp %.2f\n", dt.kembalian2);
+
         printf("Cetak tiket (Y/N) ? ");
         char cetak;
         scanf(" %c", &cetak);
         system("cls");
         if(cetak == 'y' || cetak == 'Y'){
             Tickets = fopen("Report.txt", "a+");
-            for(i = 0; i < dt.tiket; i++){
+            if(Tickets == NULL){
+                printf("Gagal membuka file Report.txt\n");
+                getch();
+                return 0;
+            }
+
+            // Membaca status kursi untuk diperbarui
+            // Membaca semua kursi ke dalam array
+            char updatedSeats[51];
+            for(int i=1; i<=50; i++) updatedSeats[i] = 'B'; // Default Belum Terisi
+            FILE *seatFile = fopen("seats.txt", "r");
+            if(seatFile == NULL){
+                printf("Gagal membuka file seats.txt\n");
+                getch();
+                fclose(Tickets);
+                return 0;
+            }
+            int seatNum;
+            char seatStatus;
+            while(fscanf(seatFile, "%d %c", &seatNum, &seatStatus) != EOF){
+                if(seatNum >=1 && seatNum <=50){
+                    updatedSeats[seatNum] = seatStatus;
+                }
+            }
+            fclose(seatFile);
+
+            // Mengubah status kursi yang dibeli menjadi 'T'
+            for(int i = 0; i < jumlahTiket; i++){
+                updatedSeats[angkakursi[i]] = 'T';
+            }
+
+            // Menulis kembali status kursi ke file
+            seatFile = fopen("seats.txt", "w");
+            if(seatFile == NULL){
+                printf("Gagal membuka file seats.txt untuk menulis\n");
+                getch();
+                fclose(Tickets);
+                return 0;
+            }
+            for(int i=1; i<=50; i++){
+                fprintf(seatFile, "%d %c\n", i, updatedSeats[i]);
+            }
+            fclose(seatFile);
+
+            // Menulis tiket ke Report.txt
+            for(int i = 0; i < jumlahTiket; i++){
                 printf("------------------------------------\n");
                 printf("|\tFunCinema\t\t|\n");
                 printf("------------------------------------\n");
-                printf("| %s\t\t\t|\n", sh.jud[sh.film]);
-                printf("|Tanggal : %d-%d-%d \t\t|\n", sh.day, sh.month, sh.year);
-                if(sh.film == 1 || sh.film == 4){
-                    printf("|Time : %.2f\t\t\t|\n", sh.jamx[sh.jam]);
+                printf("| %s\t\t\t|\n", films[selectedFilm-1].judul);
+                printf("|Tanggal : %02d-%02d-%04d \t|\n", day, month, year);
+                if(films[selectedFilm-1].filmID ==1 || films[selectedFilm-1].filmID ==4){
+                    printf("|Time : %.2f\t\t\t|\n", films[selectedFilm-1].jamx[jamNumber]);
                 }
-                else if(sh.film == 2 || sh.film == 3){
-                    printf("|Time : %.2f\t\t\t|\n", sh.jamy[sh.jam]);
+                else{
+                    printf("|Time : %.2f\t\t\t|\n", films[selectedFilm-1].jamy[jamNumber]);
                 }		
-                printf("|Row  : %c Seat : %d \t\t|\n", sh.hurufkursi[i][0], sh.angkakursi[i]);
+                printf("|Row  : %c Seat : %d \t\t|\n", hurufkursi[i], angkakursi[i]);
                 printf("------------------------------------\n\n");
 
-                fprintf(Tickets, "%s %02d/%02d/%04d %.2f %c %d\n", sh.jud[sh.film], sh.day, sh.month, sh.year, 
-                        (sh.film == 1 || sh.film == 4) ? sh.jamx[sh.jam] : sh.jamy[sh.jam], 
-                        sh.hurufkursi[i][0], sh.angkakursi[i]);
+                fprintf(Tickets, "Film: %s Tanggal: %02d-%02d-%04d Jam: %.2f Kursi: %c%d Harga: %.2f\n",
+                        films[selectedFilm-1].judul, day, month, year,
+                        (films[selectedFilm-1].filmID ==1 || films[selectedFilm-1].filmID ==4) ? films[selectedFilm-1].jamx[jamNumber] : films[selectedFilm-1].jamy[jamNumber],
+                        hurufkursi[i], angkakursi[i], harga_tiket);
             }
             fclose(Tickets);
-            
+
             buyagain:
             printf("Ingin membeli tiket lagi (Y/N) ?");
             char jawab;
@@ -237,11 +409,7 @@ int getBioskop(){
         scanf(" %c", &menuChoice);
         if(menuChoice == 'y' || menuChoice == 'Y'){
             system("cls");
-            // Panggil menu USER
-            // Implementasikan sesuai struktur baru
-            // Misalnya, kembali ke userMenu()
-            // userMenu();
-            return getBioskop(); // Atau panggil fungsi yang sesuai
+            return 0; // Kembali ke menu user
         }
         else{
             exit(1);

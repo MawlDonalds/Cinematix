@@ -1,23 +1,14 @@
-// logout.cpp
-#include <stdio.h>
-#include <windows.h>
-#include <process.h>
-#include <conio.h>
-#include "bioskop.h"
-
-// Deklarasi fungsi
-int Logout();
+// Logout.cpp
+#include <stdio.h>    // Untuk printf()
+#include <stdlib.h>   // Untuk system()
+#include <conio.h>    // Untuk getch()
+#include "bioskop.h"  // Untuk deklarasi fungsi dan struktur data
 
 int Logout(){
-    system("color 8");	
-    int r, q;
-    printf("Logging out ...\n");
-    for(r = 1; r <= 20; r++){
-        for(q = 0; q < 10000000; q++); // Simulasi loading
-        printf("%c", 177);
-    }
-    printf("\n");
-    system("cls");
+    system("cls"); // Membersihkan layar (Windows)
+    printf("Anda telah berhasil logout.\n");
+    printf("Tekan sembarang key untuk kembali ke menu utama...");
+    getch(); // Menunggu input key tanpa menampilkan karakter
     return 0;
-} 
+}
 

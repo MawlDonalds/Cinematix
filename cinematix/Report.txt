@@ -1,1 +1,2 @@
-user1 SEPIDERMAN Monday 11.30 A10,B12,C15
+Film: Deadpool&WolVerin Tanggal: 08-12-2024 Jam: 13.00 Kursi: B2 Harga: 70000.00
+Film: Deadpool&WolVerin Tanggal: 08-12-2024 Jam: 13.00 Kursi: B3 Harga: 70000.00
