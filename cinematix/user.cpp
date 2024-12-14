@@ -17,7 +17,7 @@ int userMenu(){
     while(1){
         system("cls");
         printf("=========================================================================\n");
-        printf("\t\t\t Menu USER FunCinema \n");
+        printf("\t\t\t Menu  Cinemaxxx \n");
         printf("=========================================================================\n\n");
         printf("\t1. Lihat Film\n");
         printf("\t2. Beli Tiket\n");

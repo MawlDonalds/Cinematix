@@ -14,7 +14,7 @@ int main(){
     while(1){
         system("cls");
         printf("=========================================================================\n");
-        printf("\t\t\t FunCinema \n");
+        printf("\t\t\t Cinemaxxx \n");
         printf("=========================================================================\n\n");
         printf("\t1. Login\n");
         printf("\t2. Register\n");
@@ -42,7 +42,7 @@ int main(){
                 registerUser();
                 break;
             case 3:
-                printf("Terimakasih telah menggunakan FunCinema!\n");
+                printf("Terimakasih telah menggunakan Cinemaxx!\n");
                 return 0;
             default:
                 printf("Pilihan tidak valid!\n");
@@ -50,5 +50,5 @@ int main(){
         }
     }
     return 0;
-}
+} 
 

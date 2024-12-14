@@ -30,7 +30,7 @@ int menu() {
     system("cls");
     system("color 7");	
     printf("=========================================================================\n");
-    printf("\t\t\t FunCinema - Admin Menu \n");
+    printf("\t\t\t Cinemaxxx - Admin Menu \n");
     printf("=========================================================================\n\n");
     int pil = 0;
     for (;;)

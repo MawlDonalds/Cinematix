@@ -11,6 +11,8 @@ int Tampil_Lihat(){
     Show sh;
     char buffer[256];
     char jawab;
+    void menu ();
+    
     
     FILE *Tickets = fopen("Report.txt", "r");
     if (!Tickets){
@@ -27,7 +29,7 @@ int Tampil_Lihat(){
     else{
         system("cls");
         printf("-------------------------\n");
-        printf("|\tBioskop Keren\t\t|\n");
+        printf("|\tBioskop Cinemaxxx \t\t|\n");
         printf("-------------------------\n");
         printf("| Film | Tanggal | Jam | Row | Seat | \n\n");
         while (fgets(buffer, sizeof(buffer), Tickets)){

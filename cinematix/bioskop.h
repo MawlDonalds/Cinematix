@@ -56,5 +56,8 @@ int Delete();
 // Deklarasi fungsi convertSeat
 int convertSeat(char row, int number);
 
+// Deklarasi fungsi displaySeats
+void displaySeats(char seats[]);
+
 #endif // BIOSKOP_H
 

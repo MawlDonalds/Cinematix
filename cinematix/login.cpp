@@ -13,7 +13,7 @@ int login(){
     int found = 0;
 
     system("cls");
-    printf("======== Login FunCinema ========\n\n");
+    printf("======== Login Cinemaxxx ========\n\n");
     printf("Username: ");
     scanf("%s", inputUser);
     printf("Password: ");

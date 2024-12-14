@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <conio.h>
 #include <time.h>
-#include <ctype.h>    // Untuk fungsi toupper()
+#include <ctype.h>   
 #include "bioskop.h"
 
 // Implementasi fungsi convertSeat
@@ -104,6 +104,24 @@ int updateSeats(char seats[]){
     return 1;
 }
 
+// Implementasi fungsi displaySeats
+void displaySeats(char seats[]){
+    printf("================ SCREEN =================\n");
+    
+    for(char row = 'A'; row <= 'J'; row++){
+        printf("Baris %c: ", row);
+        for(int num = 1; num <=5; num++){
+            int seatNumber = convertSeat(row, num);
+            if(seatNumber != -1){
+                printf(" %c%d[%c] ", row, num, seats[seatNumber]);
+            }
+        }
+        printf("\n");
+    }
+    printf("==========================================\n\n");
+    printf("Status: [B] Belum Terisi | [T] Terisi\n\n");
+}
+
 // Fungsi utama untuk proses pembelian tiket
 int getBioskop(){
     FILE *Tickets;
@@ -160,13 +178,13 @@ int getBioskop(){
         kembali:
         system("cls");
         printf("=========================================================================\n");
-        printf("\t\t\t FunCinema \n");
+        printf("\t\t\t Cinemaxxx \n");
         printf("=========================================================================\n\n");
         printf("\t\t\t DAFTAR FILM\n");
         printf("-------------------------------------------------------------------------\n");
         printf(" | Studio |    Film\t|------------------------------------------------\n");
         printf(" |        | \t\t|   1   |   2   |   3   |   4   |   5   |   6   |\n");
-        printf(" |----------------------|------------------------------------------------\n");
+        printf(" |------------------------------|--------------------------------------\n");
         for(int i = 0; i < filmCount; i++){
             printf(" |   %d    | %s\t| ", films[i].filmID, films[i].judul);
             for(int j =1; j<=6; j++){
@@ -244,6 +262,26 @@ int getBioskop(){
             getch();
             goto kembali;
         }
+
+        // Setelah user memilih film, jam tayang, dan jumlah tiket, 
+        // Barulah kita tampilkan layout kursi
+        system("cls");
+        printf("=========================================================================\n");
+        printf("\t\t\t Cinemaxxx \n");
+        printf("=========================================================================\n\n");
+        printf("Film: %s\n", films[selectedFilm-1].judul);			
+        if(films[selectedFilm-1].filmID == 1 || films[selectedFilm-1].filmID ==4){
+            printf("Jam: %.2f\n", films[selectedFilm-1].jamx[jamNumber]);
+        }
+        else{
+            printf("Jam: %.2f\n", films[selectedFilm-1].jamy[jamNumber]);
+        }
+        printf("Jumlah tiket: %d\n", jumlahTiket);
+        printf("Harga Tiket : Rp. %.2f\n", harga_tiket);
+
+        printf("\n\n======== Pilih Tempat Duduk ========\n");
+        displaySeats(seats); 
+        printf("====================================\n\n");
 
         // Pilihan tempat duduk
         char hurufkursi[50];
@@ -344,7 +382,7 @@ int getBioskop(){
             // Membaca status kursi untuk diperbarui
             // Membaca semua kursi ke dalam array
             char updatedSeats[51];
-            for(int i=1; i<=50; i++) updatedSeats[i] = 'B'; // Default Belum Terisi
+            memset(updatedSeats, 'B', sizeof(updatedSeats)); // Default Belum Terisi
             FILE *seatFile = fopen("seats.txt", "r");
             if(seatFile == NULL){
                 printf("Gagal membuka file seats.txt\n");
@@ -385,10 +423,10 @@ int getBioskop(){
             // Menulis tiket ke Report.txt
             for(int i = 0; i < jumlahTiket; i++){
                 printf("------------------------------------\n");
-                printf("|\tFunCinema\t\t|\n");
+                printf("|\tCinemaxxx\t\t|\n");
                 printf("------------------------------------\n");
                 printf("| %s\t\t\t|\n", films[selectedFilm-1].judul);
-                printf("|Tanggal : %02d-%02d-%04d \t|\n", day, month, year);
+                printf("|Tanggal  : %02d-%02d-%04d \t|\n", day, month, year);
                 if(films[selectedFilm-1].filmID ==1 || films[selectedFilm-1].filmID ==4){
                     printf("|Time : %.2f\t\t\t|\n", films[selectedFilm-1].jamx[jamNumber]);
                 }

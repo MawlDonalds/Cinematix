@@ -1,3 +1,4 @@
+// admin.cpp
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -14,39 +15,13 @@ int editHarga();
 int lihatRiwayat();
 int editTempatDuduk();
 
-//// Fungsi Logout
-//int Logout(){
-//    system("cls");
-//    printf("Anda telah berhasil logout.\n");
-//    printf("Tekan sembarang key untuk kembali ke menu utama...");
-//    getch();
-//    return 0;
-//}
-
-// Fungsi untuk menampilkan layout kursi
-void displaySeats(char seats[]){
-    printf("======== Layout Kursi ========\n");
-    printf("Status: B = Belum Terisi, T = Terisi\n\n");
-    for(char row = 'A'; row <= 'J'; row++){
-        printf("Baris %c: ", row);
-        for(int num = 1; num <=5; num++){
-            int seatNumber = convertSeat(row, num);
-            if(seatNumber != -1){
-                printf(" %c%d(%c) ", row, num, seats[seatNumber]);
-            }
-        }
-        printf("\n");
-    }
-    printf("================================\n\n");
-}
-
 // Implementasi fungsi adminMenu()
 int adminMenu(){
     int pilihan;
     while (1) {
         system("cls");
         printf("=========================================================================\n");
-        printf("\t\t\t Menu ADMIN FunCinema \n");
+        printf("\t\t\t Menu Admin Cinemaxxx \n");
         printf("=========================================================================\n\n");
         printf("\t1. Edit Film\n");
         printf("\t2. Edit Jam Tayang\n");
@@ -115,7 +90,7 @@ int editTempatDuduk(){
     while(1){
         system("cls");
         printf("======== Edit Tempat Duduk ========\n\n");
-        displaySeats(seats);
+        displaySeats(seats); // Menampilkan layout kursi
 
         printf("Opsi:\n");
         printf("1. Ubah Status Kursi\n");

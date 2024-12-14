@@ -1,2 +1,17 @@
 Film: Deadpool&WolVerin Tanggal: 08-12-2024 Jam: 13.00 Kursi: B2 Harga: 70000.00
 Film: Deadpool&WolVerin Tanggal: 08-12-2024 Jam: 13.00 Kursi: B3 Harga: 70000.00
+Film: Deadpool&WolVerin Tanggal: 08-12-2024 Jam: 21.00 Kursi: A4 Harga: 70000.00
+Film: Spongebob Tanggal: 08-12-2024 Jam: 20.45 Kursi: B3 Harga: 70000.00
+Film: AgakLaenIII Tanggal: 10-12-2024 Jam: 11.30 Kursi: A3 Harga: 50000.00
+Film: AgakLaenIII Tanggal: 10-12-2024 Jam: 11.30 Kursi: A3 Harga: 50000.00
+Film: AgakLaenIII Tanggal: 10-12-2024 Jam: 11.30 Kursi: A2 Harga: 50000.00
+Film: Moana Tanggal: 11-12-2024 Jam: 14.20 Kursi: J2 Harga: 50000.00
+Film: Moana Tanggal: 11-12-2024 Jam: 14.20 Kursi: C3 Harga: 50000.00
+Film: AgakLaenIII Tanggal: 11-12-2024 Jam: 12.55 Kursi: A1 Harga: 50000.00
+Film: GladiatorII Tanggal: 11-12-2024 Jam: 17.20 Kursi: D1 Harga: 50000.00
+Film: Moana2 Tanggal: 11-12-2024 Jam: 20.45 Kursi: D3 Harga: 50000.00
+Film: Moana2 Tanggal: 11-12-2024 Jam: 12.55 Kursi: J5 Harga: 50000.00
+Film: Moana2 Tanggal: 11-12-2024 Jam: 12.55 Kursi: J4 Harga: 50000.00
+Film: Wicked Tanggal: 11-12-2024 Jam: 21.00 Kursi: D5 Harga: 50000.00
+Film: GladiatorII Tanggal: 13-12-2024 Jam: 15.30 Kursi: G4 Harga: 50000.00
+Film: Moana2 Tanggal: 14-12-2024 Jam: 17.20 Kursi: A5 Harga: 70000.00
